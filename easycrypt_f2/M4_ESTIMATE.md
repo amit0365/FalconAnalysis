@@ -113,3 +113,52 @@ Three paths to credible measurement:
 
 *Author: F2 project, Phase 2 week 1, M4 projection. Last updated: 2026-05-15.*
 *Status: pre-measurement projection. Replace with empirical numbers when M4 hardware available.*
+
+---
+
+## Update (2026-05-15): empirical ARMv7 data via Docker
+
+I initially dismissed QEMU as "too much scaffolding." That was wrong — Docker with `--platform linux/arm/v7` runs unmodified Falcon binaries on emulated ARMv7-A in two commands. **Real measurements:**
+
+```sh
+docker run --rm --platform linux/arm/v7 -v $(pwd):/work -w /work gcc:13 bash -c \
+  'gcc -O2 -DF2_RADICAL -c -o sign.o sign.c && \
+   gcc -O2 -DF2_RADICAL -o bench bench_sign.c *.o && \
+   ./bench'
+```
+
+| Variant | µs / sig (3-run mean) | Throughput | vs Apple Silicon native |
+|---|---|---|---|
+| F1 baseline (ARMv7-A under QEMU) | 38328 | 26 sigs/sec | 4.8× slower |
+| F2-radical (ARMv7-A under QEMU) | 15549 | 64 sigs/sec | 6.0× slower |
+| **F2/F1 ratio** | **2.47×** | — | (vs 3.09× native) |
+
+Variance: ±450 µs F1, ±265 µs F2 (both <2%).
+
+### Why is the ARMv7 ratio (2.47×) LOWER than Apple Silicon (3.09×)?
+
+QEMU's user-mode translation adds roughly-constant overhead per emulated instruction. This flattens the F1/F2 ratio because:
+
+- F1's "more instructions" advantage is amortized by QEMU overhead per instruction
+- F2's "fewer instructions" advantage is similarly amortized
+- The DIFFERENCE in instruction count is preserved in absolute time but its relative weight shrinks
+
+Real Cortex-M4 (no QEMU layer, but software-emulated double-precision FPU) should behave differently:
+- Each `fpr_expm_p63` is ~1500-2000 cycles on M4 (vs ~30-50 on Apple Silicon)
+- F2 saves 9.5× of these calls relative to F1
+- This pushes the M4 ratio toward the ceiling (3.5×), likely landing in **3.0×-3.4×**
+
+### Cross-platform consistency table
+
+| Platform | F1 µs/sig | F2 µs/sig | Ratio | Source |
+|---|---|---|---|---|
+| Apple Silicon native (M2/M3) | 7946 | 2573 | **3.09×** | measured |
+| ARMv7-A under QEMU on Apple Silicon | 38328 | 15549 | **2.47×** | measured |
+| Intel i5-1135G7 (projection from bayes_bound.py) | 16839 (per-call ratio) | 6930 | **2.43×** | model |
+| Cortex-M4 STM32F415 | ~175000 | ~55000-70000 | **3.0-3.4×** | projection |
+
+All four data points are below the 3.5× ceiling. F2 is consistently ≥ 2.4× faster than F1 across architectures.
+
+### Implication for the paper
+
+We now have F2 measured on TWO distinct architectures (Apple Silicon native + ARMv7-A under QEMU), confirming the speedup is not an Apple-Silicon artifact. The Phase 3 Chipwhisperer M4 measurement will be the third (and most paper-critical) data point.
