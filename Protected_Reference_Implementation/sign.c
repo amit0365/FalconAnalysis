@@ -1132,6 +1132,111 @@ void compute_x(fpr x_array[][19], fpr *c_bar_array, fpr dsss){
 
 static const int b_table[16]={2,1,1,2,2,1,1,2, 2,1,1,2,2,1,1,2};
 
+/* ================================================================
+ * F2-radical countermeasure (easycrypt_f2/, this work)
+ * Replaces Lin et al.'s 19-row constant-time enumeration with a
+ * 4-call shuffled BerExp using (1 real + 3 i.i.d. dummies). See:
+ *   easycrypt_f2/PHASE1_MAIN_THEOREM.md
+ * Compile with -DF2_RADICAL to enable.
+ * ================================================================ */
+#ifdef F2_RADICAL
+
+static int
+BerExp_single(prng *p, fpr x, fpr ccs)
+{
+    int s, i;
+    fpr r;
+    uint64_t z_val;
+    uint32_t w, sw;
+
+    s = (int)fpr_trunc(fpr_mul(x, fpr_inv_log2));
+    sw = (uint32_t)s;
+    sw ^= (sw ^ 63) & -((63 - sw) >> 31);
+    r = fpr_sub(x, fpr_mul(fpr_of((int)sw), fpr_log2));
+    z_val = ((fpr_expm_p63(r, ccs) << 1) - 1) >> sw;
+
+    i = 64;
+    do {
+        i -= 8;
+        w = prng_get_u8(p) - ((uint32_t)(z_val >> i) & 0xFF);
+    } while (!w && i > 0);
+    return (int)(w >> 31);
+}
+
+int
+Zf(sampler)(void *ctx, fpr mu, fpr isigma)
+{
+    sampler_context *spc;
+    int s, b, z0_idx;
+    fpr r, dss, ccs;
+    fpr c_bar[3];
+    int z_arr_decoded[3][19];
+
+    spc = (sampler_context *)ctx;
+    s = (int)fpr_floor(mu);
+    r = fpr_sub(mu, fpr_of(s));
+    c_bar[1] = r;
+    c_bar[2] = fpr_sub(fpr_of(1), r);
+    dss = fpr_half(fpr_sqr(isigma));
+    ccs = fpr_mul(isigma, spc->sigma_min);
+
+    for (int z0_i = 0; z0_i < 19; z0_i++) {
+        z_arr_decoded[1][z0_i] = s - z0_i;
+        z_arr_decoded[2][z0_i] = 1 + s + z0_i;
+    }
+
+    for (;;) {
+        int b_idx = (int)prng_get_u8(&spc->p) & 0xF;
+        b = b_table[b_idx];
+
+        int z00_arr[18], z01_arr[18], z02_arr[18], z03_arr[18];
+        Zf(gaussian0_sampler)(z00_arr, &spc->p);
+        Zf(gaussian0_sampler)(z01_arr, &spc->p);
+        Zf(gaussian0_sampler)(z02_arr, &spc->p);
+        Zf(gaussian0_sampler)(z03_arr, &spc->p);
+
+        int sums[4] = {0,0,0,0};
+        for (int kk = 0; kk < 18; kk++) {
+            sums[0] += z00_arr[kk] & 1;
+            sums[1] += z01_arr[kk] & 1;
+            sums[2] += z02_arr[kk] & 1;
+            sums[3] += z03_arr[kk] & 1;
+        }
+        int z0_arr[4];
+        z0_arr[0] = 18 + 2*s - (s + sums[0]);
+        z0_arr[1] = 18 + 2*s - (s + sums[1]);
+        z0_arr[2] = 18 + 2*s - (s + sums[2]);
+        z0_arr[3] = 18 + 2*s - (s + sums[3]);
+
+        z0_idx = (int)prng_get_u8(&spc->p) & 0x3;
+
+        int shuffle_perm[4] = {0,1,2,3};
+        for (int idx = 3; idx > 0; idx--) {
+            int rnd = (int)prng_get_u8(&spc->p) & 0x3;
+            while (rnd > idx) rnd = (int)prng_get_u8(&spc->p) & 0x3;
+            int tmp = shuffle_perm[idx];
+            shuffle_perm[idx] = shuffle_perm[rnd];
+            shuffle_perm[rnd] = tmp;
+        }
+
+        int berexp_results[4];
+        for (int j = 0; j < 4; j++) {
+            int lane = shuffle_perm[j];
+            int z0_val = z0_arr[lane] - s;
+            fpr base = fpr_add(z0_fpr[z0_val], c_bar[b]);
+            fpr x = fpr_sub(fpr_mul(fpr_sqr(base), dss),
+                            z0_sqr_inv_2sqrsigma0[z0_val]);
+            berexp_results[lane] = BerExp_single(&spc->p, x, ccs);
+        }
+
+        if (berexp_results[z0_idx]) {
+            return z_arr_decoded[b][z0_arr[z0_idx] - s];
+        }
+    }
+}
+
+#else  /* F1 — original Lin et al. */
+
 // Protected SamplerZ in Algorithm 6
 int
 Zf(sampler)(void *ctx, fpr mu, fpr isigma)
@@ -1214,6 +1319,8 @@ Zf(sampler)(void *ctx, fpr mu, fpr isigma)
         }
     }
 }
+
+#endif  /* F2_RADICAL switch */
 
 /* see inner.h */
 void

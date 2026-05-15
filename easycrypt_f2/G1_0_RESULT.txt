@@ -1,0 +1,41 @@
+F2 Bayes-optimal predictor bound for Falcon-512 gaussian0_sampler
+  π = (Falcon RCDT-derived PMF on {0..18})
+  prior floor π(0) = max π = 0.359498
+  Lin et al. F1 measured accuracy: ~58% (Table 5, paper)
+
+  k  method         μ(π, k)    Adv = μ - π(0)    vs Lin 0.58
+----------------------------------------------------------------------
+  1  analytic      1.000000          0.640502  (unprotected)
+  2  exact         0.636565          0.277067      +0.056565  (worse than Lin)
+  3  exact         0.578318          0.218821      -0.001682  (beats Lin)
+  4  exact         0.546717          0.187219      -0.033283  (beats Lin)
+  5  exact         0.517119          0.157621      -0.062881  (beats Lin)
+  6  MC 10M        0.496355          0.136857      -0.083645  (beats Lin)
+  8  MC 10M        0.471787          0.112289      -0.108213  (beats Lin)
+ 12  MC 10M        0.442142          0.082644      -0.137858  (beats Lin)
+ 16  MC 10M        0.426152          0.066655      -0.153847  (beats Lin)
+ 19  MC 10M        0.417777          0.058279      -0.162223  (beats Lin)
+
+Interpretation:
+  - 'μ - π(0)' is the info gain over the trivial prior-guess attacker.
+    This is the actual security advantage of an optimal F2 adversary.
+  - μ vs 0.58 compares F2(k) to Lin et al.'s measured protected accuracy.
+    F2(k) is *security-equivalent or better* to Lin when μ(k) ≤ 0.58.
+
+Cost-vs-security tradeoff (using Table 6 of paper for per-call cost):
+
+  k   BerExp calls/sample   projected ns/SamplerZ   e2e speedup
+----------------------------------------------------------------------
+  2                     2                    3173         66.8%
+  3                     3                    3846         62.8%
+  4                     4                    4519         58.8%
+  6                     6                    5865         50.9%
+  8                     8                    7211         42.9%
+ 19                    19                   14614         -1.1%
+
+Combined verdict for k = 4:
+  - security: μ(π, 4) = 0.5467  (Lin: 0.58, trivial prior: 0.3595)
+  - cost:     SamplerZ = 4519 ns  (Lin: 14428 ns)
+  - e2e:      58.8% speedup vs Lin et al.
+
+  ✓ F2(k=4) is strictly stronger than Lin et al. AND faster — thesis holds.
