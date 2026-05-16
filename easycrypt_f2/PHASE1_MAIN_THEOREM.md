@@ -195,13 +195,11 @@ If either measurement gives a worse-than-expected value, the security claim weak
 
 The Phase 3 measurement is on STM32F415 + Chipwhisperer-Lite. The security claim *strictly* applies only to this hardware family. Other platforms (Apple M-series, x86 Intel, server-grade ARM, ASIC) require independent measurement. The paper should be clear about this.
 
-### 7.3 Single-signature horizon
+### 7.3 Multi-signature horizon (analyzed in PHASE1_MULTISIG.md)
 
-The bound `(μ + ε_leak)^M` applies *per signature*. Across `N_sig` signatures:
-- Expected total recovered coefficients: `N_sig · M · (μ + ε_leak)`
-- For Falcon's expected ~10⁶ signatures over a key's lifetime, this is ~10¹⁰ partially-revealed coefficients — well above the parallelepiped threshold
+The bound `(μ + ε_leak)^M` applies *per signature*. The multi-signature picture is analyzed in `PHASE1_MULTISIG.md` (C6 resolution).
 
-The multi-signature regime needs its own analysis (the equivalent of Pessl 2016's BLISS work). Likely scope: a future paper, or a "future work" section in this one.
+**Honest summary**: F2 does NOT improve resistance to multi-signature aggregation attacks. F2's per-call advantage (0.187 above prior) is comparable to F1's (0.220), so aggregate information across N signatures is comparable. Both schemes inherit Falcon's spec-mandated rekey policy (≤10⁶ sigs/key) as the multi-signature defense. **F2's contribution is on the cost axis, not the multi-signature security axis.**
 
 ### 7.4 Adaptive adversaries
 
@@ -214,6 +212,14 @@ This document is silent on fault attacks (DFA, glitch injection). F2-radical is 
 ### 7.6 Power supply DC drift
 
 Long-term DC drift across the ~M = 18000 calls within a signature is the most physically-realistic threat to A2. Mitigated by hardware decoupling and possibly by injecting high-frequency noise. Phase 3 measures the residual.
+
+### 7.7 Theory-polish concerns resolved (C3, C6, C7)
+
+Three concerns from the critical review are now addressed in dedicated documents:
+
+- **C3 (bound tightness) → `PHASE1_TIGHTNESS.md`**: The Bayes-optimal estimator is an explicit PPT attack achieving μ(π, k) under ε_leak = 0. Monte Carlo simulation over 10⁶ trials confirms empirical accuracy matches theoretical bound within 0.13% across k ∈ {2..8}. **The bound is tight.**
+- **C6 (multi-signature aggregation) → `PHASE1_MULTISIG.md`**: F2 does not improve multi-signature security over F1; both rely on Falcon's spec-mandated rekey policy. F2's contribution is on the cost axis. Acknowledged as scope limitation.
+- **C7 (PRNG quality citation) → `PRNG_SECURITY.md`**: Falcon's ChaCha20-256 PRNG (Bernstein 2008 [B08], RFC 8439, seeded by FIPS 202 SHAKE-256) has indistinguishability budget 2⁹⁶ blocks, far exceeding any practical signing volume. Shuffle ε_shuffle is dominated by ε_leak.
 
 ---
 

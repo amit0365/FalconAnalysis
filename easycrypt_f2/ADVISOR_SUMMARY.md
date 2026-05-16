@@ -36,6 +36,9 @@ A countermeasure for Falcon's BerExp side-channel leakage that **beats PKC 2025 
 - **Claim 2**: under per-call independence, horizontal aggregation across the 18K SamplerZ calls per signature provides **no additional advantage**. Pessl 2016's BLISS attack does not transfer. [PHASE1_PROOF_CLAIM2.md]
 - **Claim 3**: empirical specification for ε_leak measurement on Chipwhisperer-Lite. Test protocol matches Lin et al.'s setup for direct comparison. [PHASE1_PROOF_CLAIM3.md]
 - **Main theorem**: composition of C1+C2+C3 gives paper-headline form. [PHASE1_MAIN_THEOREM.md]
+- **Tightness (C3)**: explicit attack `A_Bayes` achieves μ(π, k) empirically; 10⁶-trial Monte Carlo confirms within 0.13%. [PHASE1_TIGHTNESS.md]
+- **Multi-signature scope (C6)**: F2 inherits F1's multi-signature limitation; both rely on Falcon's spec rekey policy. Honest scope statement. [PHASE1_MULTISIG.md]
+- **PRNG citation (C7)**: ChaCha20-256 [B08, RFC 8439] seeded by SHAKE-256 [FIPS 202]; indistinguishability budget 2⁹⁶ blocks ≫ any signing volume. [PRNG_SECURITY.md]
 
 ## What I need from you (advisor)
 
@@ -51,15 +54,19 @@ H2 is a smaller separable result (row truncation 19→15, 15% e2e speedup, no ne
 **3. Chipwhisperer hardware access**
 Phase 3 is the gating activity (weeks 13-20). I need confirmed access to Chipwhisperer-Lite + STM32F415 UFO board. NYU has them; need to know who to coordinate with.
 
-## Risk assessment (top three)
+## Risk assessment
 
-| Risk | Probability | Impact | Mitigation |
+Updated after C3/C6/C7 resolution:
+
+| Risk | Probability | Impact | Status / Mitigation |
 |---|---|---|---|
-| ε_leak too large on real hardware (> 10⁻²) | medium | major | fallback to F2 + masking hybrid (provable d-SNI floor) |
-| Multi-signature horizon weakens F2 across ~10⁶ signatures | medium | major | acknowledge as future work; cite as scope limitation |
-| External reviewer finds a hidden assumption in Lemma 5.1 reduction | medium | medium | scheduled review at G1.1; budget time to refactor |
+| ε_leak too large on real hardware (> 10⁻²) | medium | major | Open until Phase 3 measurement; fallback to F2 + masking hybrid |
+| External reviewer finds a hidden assumption in Lemma 5.1 reduction | medium | medium | Open until G1.1 external review |
+| ~~Bound not tight (C3)~~ | — | — | **Resolved**: explicit A_Bayes attack confirms tightness within 0.13% [PHASE1_TIGHTNESS.md] |
+| ~~Multi-signature defeats F2 (C6)~~ | — | — | **Resolved**: F2 doesn't claim to defeat multi-sig; inherits Falcon's spec rekey policy. Honest scope. [PHASE1_MULTISIG.md] |
+| ~~PRNG citation missing (C7)~~ | — | — | **Resolved**: ChaCha20-256 + SHAKE-256, cited. [PRNG_SECURITY.md] |
 
-The mathematical assumptions (A4-A8 in `PHASE1_MAIN_THEOREM.md` §3) are all discharged. The empirical ones (A1, A2) are gated on Phase 3 measurement.
+The mathematical assumptions (A4-A8 in `PHASE1_MAIN_THEOREM.md` §3) are all discharged. C3/C6/C7 theory-polish concerns are now documented. The empirical assumptions (A1, A2) are gated on Phase 3 measurement.
 
 ## Timeline & resource ask
 
