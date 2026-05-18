@@ -93,23 +93,38 @@ If G3 fires (dummies distinguishable):
 
 ---
 
-## Foundational references (from P0)
+## Foundational references (from P0 — verified by full-text reading 2026-05-18)
 
-1. Lin, Zhang, Yu, Wang et al. PKC 2025 (eprint 2025/351) — target paper
-2. Belaïd, Benhamouda, Eraly, Goudarzi, Rivain 2018 [BBE+18] "Tight Private Circuits"
-3. Belaïd, Goudarzi, Rivain 2019 [BBE+19] composition
-4. Migliore, Gérard, Tibouchi, Fouque ACNS 2019 — masked Dilithium
-5. Veyrat-Charvillon, Medwed, Kerckhof, Standaert ASIACRYPT 2012 — shuffling canonical reference
-6. Pessl Indocrypt 2016 (eprint 2017/033) — **the cautionary tale**; broke polynomial-shuffled BLISS
-7. Roy et al. eprint 2014/591 — originated BLISS sampler shuffling
-8. Azouaoui et al. TCHES 2022(2) — most recent shuffling-theory framework
-9. Bruinderink, Hülsing, Lange, Yarom CHES 2016 — first SCA on lattice Gaussian sampler
-10. Karabulut, Aysu DAC 2021 — first Falcon SCA
-11. Guerreau, Martinelli, Ricosset, Rossi TCHES 2022(3) — Falcon base-sampler SPA
-12. Zhang, Lin, Yu, Wang EUROCRYPT 2023 — Falcon SCA state of the art before Lin25
-13. Howe, Prest, Ricosset, Rossi PQCrypto 2020 — Falcon constant-time SamplerZ
-14. Espitau et al. Mitaka EUROCRYPT 2022 — alternative Falcon design, masking-only SCA
-15. Coron, Carrier 2024 [CC24] — masked floating-point for Falcon pre-image
+### Target paper
+1. **Lin, Zhang, Yu, Wang et al. PKC 2025 (eprint 2025/351)** — the F1 countermeasure we beat
+
+### Shuffling-with-dummies SCA literature (closest priors)
+2. **Veyrat-Charvillon, Medwed, Kerckhof, Standaert. ASIACRYPT 2012** — "Shuffling Against Side-Channel Attacks: A Comprehensive Study with Cautionary Note." First formal information-theoretic data-complexity lower bounds for shuffled AES. Assumes uniform secret.
+3. **Azouaoui, Bronchain, Grosso, Papagiannopoulos, Standaert. TCHES 2022(2) (eprint 2021/951)** — "Bitslice Masking and Improved Shuffling." Most recent shuffling-theory framework. **Eq. (4) explicitly assumes uniform Y** — provides the verbatim cite anchor for our non-uniform-prior novelty.
+4. **Pessl. INDOCRYPT 2016 (eprint 2017/033)** — "Analyzing the Shuffling Side-Channel Countermeasure for Lattice-Based Signatures." Cautionary tale: broke BLISS polynomial-level shuffling. §5.5 "Merging equal y" uses multiplicity-weighted priors — closest mathematical neighbor, but attacker-side / polynomial granularity (dual to our defender-side / single-sample).
+5. **Roy, Reparaz, Vercauteren, Verbauwhede. eprint 2014/591** — Originated BLISS sampler shuffling (the proposal Pessl broke).
+6. **Park, Han. ASOC 2020** — "Security analysis on dummy based side-channel countermeasures — Case study: AES with dummy and shuffling." AES-specific (uniform).
+
+### Foundational masking / probing model
+7. **Migliore, Gérard, Tibouchi, Fouque. ACNS 2019** — Masked Dilithium (different countermeasure family from F2).
+8. **Belaïd, Goudarzi, Rivain. EUROCRYPT 2018 (eprint 2018/439)** — "Tight Private Circuits": probing-model masking bounds (not directly shuffling-related, but referenced in the SCA framework).
+
+### Falcon SCA prior work
+9. **Bruinderink, Hülsing, Lange, Yarom. CHES 2016** — First SCA on a lattice Gaussian sampler (BLISS via cache attack).
+10. **Karabulut, Aysu. DAC 2021** — First Falcon SCA (FFT-side).
+11. **Guerreau, Martinelli, Ricosset, Rossi. TCHES 2022(3)** — "The Hidden Parallelepiped Is Back Again": Falcon base-sampler SPA.
+12. **Zhang, Lin, Yu, Wang. EUROCRYPT 2023 (eprint 2023/224)** — Improved Falcon SCA, predecessor to Lin25.
+13. **Howe, Prest, Ricosset, Rossi. PQCrypto 2020** — Falcon's constant-time SamplerZ baseline.
+
+### Adjacent Falcon designs / countermeasures
+14. **Espitau et al. EUROCRYPT 2022** — Mitaka, alternative Falcon design with masking-only SCA story.
+15. **Coron, Carrier. 2024 [CC24]** — Masked floating-point for Falcon pre-image computation.
+
+### Classical math foundation (cited but not novel to us)
+16. **de Finetti 1937 / Aldous 1985** — Exchangeability theorems; underlying principle for Lemma 5.2.
+17. **Bishop, "Pattern Recognition and Machine Learning," 2006, §1.5** — Bayesian decision theory / MAP estimator optimality.
+
+**Note on prior versions of this file**: an earlier draft listed phantom "BBE+18 / BBE+19" citations (Belaïd-Benhamouda-Eraly...). These were hallucinated references that don't match any real paper. They have been removed. The real Belaïd-Goudarzi-Rivain "Tight Private Circuits" 2018 paper is cited as #8.
 
 ---
 

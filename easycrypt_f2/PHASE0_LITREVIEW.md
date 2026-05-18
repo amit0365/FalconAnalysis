@@ -42,25 +42,49 @@ Applying shuffling-with-dummies to a single SamplerZ / BerExp invocation in Falc
 
 ---
 
-## 4. Theoretical gap
+## 4. Theoretical gap — VERIFIED by full-text PDF reading (2026-05-18)
 
-The standard "shuffling reduces single-trace accuracy to 1/k" intuition is folkloric in symmetric crypto and is **only rigorously justified for uniform secrets**. The closest formal treatment is Daemen et al. / Park-Han "Security analysis on dummy based side-channel countermeasures — Case study: AES with dummy and shuffling" (ASOC 2020). It is AES-specific (uniform GF(256) secret).
+The standard "shuffling reduces single-trace accuracy to 1/k" intuition in symmetric-crypto SCA literature **explicitly bakes uniform-secret assumption into its foundational equations**.
 
-For Falcon's z₀, the distribution is sharply non-uniform: P(z₀=0) ≈ 0.36, P(z₀=18) ≈ 2⁻⁷². An attacker who always guesses 0 already achieves 36% accuracy — *above* the naive 1/k = 25% bound for k=4.
+**Smoking gun — Azouaoui, Bronchain, Grosso, Papagiannopoulos, Standaert. "Bitslice Masking and Improved Shuffling," TCHES 2022(2) [eprint 2021/951], p. 5, Equation (4)**:
 
-**The right statement is closer to "max-entropy-loss = log₂(k) bits on top of the prior."** We derived this rigorously in `PHASE1_PROOF_CLAIM1.md` as `μ(π, k) = E_M[c_{g*(M)}(M) / k]`, evaluated numerically to `μ(π, 4) = 0.547` in `bayes_bound.py` / `G1_0_RESULT.txt`.
+> *"Thanks to this PDF, the conditional probability of a sensitive variable Y given the leakage, denoted as Pr[Y = y | L = l] := p(y|l), can be computed via Bayes. **Assuming that Y is uniformly distributed (which is the case for the cryptographic secrets we aim to recover)**, it is expressed as: p(y|l) = f(l|y) / Σ_y* f(l|y*)."*
 
-This bound for non-uniform Gaussian secrets is genuinely open in the SCA literature — **filling it is F2's strongest novelty hook**.
+The uniform-Y assumption is in the Bayes equation itself, not relegated to a footnote.
+
+**Veyrat-Charvillon, Medwed, Kerckhof, Standaert. "Shuffling Against Side-Channel Attacks: A Comprehensive Study with Cautionary Note," ASIACRYPT 2012, §1**:
+
+> *"As a result and for the first time, we obtain **lower bounds for the data complexity** of standard side-channel attacks against shuffled implementations."*
+
+Target: AES (uniform key bytes). Object: data-complexity bounds (number of traces), not per-trace accuracy.
+
+For Falcon's z₀, the distribution is sharply non-uniform: P(z₀=0) ≈ 0.36, P(z₀=18) ≈ 2⁻⁷². An attacker who always guesses 0 already achieves 36% accuracy — *above* the naive 1/k = 25% bound for k=4. Azouaoui's framework cannot apply because its eq. (4) assumes uniform Y.
+
+**The right statement is the Bayes-optimal multiset-predictor accuracy `μ(π, k) = E_M[c_{g*(M)}(M) / k]`**, derived rigorously in `PHASE1_PROOF_CLAIM1.md`, evaluated numerically to `μ(π, 4) = 0.547` in `bayes_bound.py` / `G1_0_RESULT.txt`.
+
+**F2's strongest novelty hook**: the first closed-form, defender-side, Bayes-optimal per-trace accuracy bound for shuffling-with-dummies under non-uniform secret prior — a regime explicitly excluded by Azouaoui et al. TCHES 2022(2) eq. (4).
 
 ---
 
 ## 5. Pessl/Lin/Mitaka triangulation (P0 follow-up)
 
-### Q1: Does Pessl 2016 preempt F2? → NO (with caveat for horizontal aggregation)
+### Q1: Does Pessl 2016 preempt F2? → NO (closest prior; verified by full-text reading 2026-05-18)
 
 Pessl's attack is structurally a **population-of-N un-shuffler** that exploits BLISS's polynomial-level shuffle over N=512 coefficients per signature. The attack constructs an n×n likelihood matrix `L ∈ (n × n), with Lᵢⱼ = Xsc(zᵢ − yⱼ)` and applies Bayesian normalization across rows and columns to re-assign each leaked sample to its index. With only k=4 shuffled candidates per SamplerZ invocation, there is no n×n matrix to build — the matching is trivial within a call.
 
-The relevant question is whether an attacker can do horizontal aggregation across the ~18,000 SamplerZ calls per Falcon-512 signature, treating those calls collectively as Pessl's population. **Pessl himself does not evaluate "shuffling within a single sample"** — his scope is single-stage and two-stage polynomial shuffling.
+**Closest prior — Pessl §5.5 "Merging equal y"** (the technique most resembling our Lemma 5.2):
+
+> *"We use this observation as follows. We create a vector u which contains the unique elements of y₁. We then compute P(z_i ∼ u_j | u). For that, we use the number of times each u_j appears in u as prior probabilities (instead of the uniform distribution)."*
+
+So Pessl DOES use multiplicity-weighted (non-uniform) priors — BUT:
+- As an **attacker's likelihood-matrix optimization** for matching n=512 shuffled BLISS coefficients
+- NOT as a **defender-side closed-form accuracy bound**
+- Different math object: attacker's posterior `P(z_i ∼ u_j | u)` for matching; our `P(real = v | M) = c_v(M)/k` is the defender's information-theoretic bound
+- Different problem (polynomial unshuffling vs single-call F2 multiset)
+
+Our work is essentially the **dual perspective** (defender-side, single-sample granularity) of Pessl §5.5's idea (attacker-side, polynomial granularity).
+
+The relevant remaining question is whether an attacker can do horizontal aggregation across the ~18,000 SamplerZ calls per Falcon-512 signature, treating those calls collectively as Pessl's population. **Pessl himself does not evaluate "shuffling within a single sample"** — his scope is single-stage and two-stage polynomial shuffling.
 
 **Verbatim** [Pessl16 §5.2, p.10]: *"Note that all following descriptions are in context of sampling from the 'small' Dσ₀ and thus Algorithm 2, which is called 2048 times during signature generation."*
 

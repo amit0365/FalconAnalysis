@@ -301,7 +301,53 @@ This says **F2(k=4) is at least as secure as Lin et al.** in the worst-case for 
 
 ---
 
-## 10. What unblocks SP1.2
+## 10. Novelty relative to prior SCA literature (verified 2026-05-18)
+
+Both novelty claims for Theorem C1 were independently verified by full-text reading of the closest prior papers.
+
+### Existing SCA shuffling bounds explicitly assume uniform secrets
+
+**Azouaoui, Bronchain, Grosso, Papagiannopoulos, Standaert. "Bitslice Masking and Improved Shuffling," TCHES 2022(2)** (the most recent shuffling-theory framework in symmetric-crypto SCA literature). Page 5, Equation (4):
+
+> *"Thanks to this PDF, the conditional probability of a sensitive variable Y given the leakage, denoted as Pr[Y = y | L = l] := p(y|l), can be computed via Bayes. **Assuming that Y is uniformly distributed (which is the case for the cryptographic secrets we aim to recover)**, it is expressed as: p(y|l) = f(l|y) / Σ_y* f(l|y*)."*
+
+The uniform-Y assumption is in their foundational Bayes equation, not relegated to a footnote.
+
+**Veyrat-Charvillon, Medwed, Kerckhof, Standaert. "Shuffling Against Side-Channel Attacks: A Comprehensive Study with Cautionary Note," ASIACRYPT 2012**, §1:
+
+> *"As a result and for the first time, we obtain **lower bounds for the data complexity** of standard side-channel attacks against shuffled implementations."*
+
+Target: AES (uniform key bytes). Object: data-complexity bounds (number of traces N), NOT per-trace accuracy. Different mathematical object than our μ(π, k).
+
+For Falcon's z₀ ~ half-Gaussian (P(0) ≈ 0.36, sharply non-uniform), Azouaoui's eq. (4) does not apply. Our Theorem C1 generalizes the Bayesian shuffled-SCA framework to non-uniform secrets.
+
+### Closest prior — Pessl 2016 §5.5 "Merging equal y"
+
+The closest mathematical neighbor in SCA literature is **Pessl. "Analyzing the Shuffling Side-Channel Countermeasure for Lattice-Based Signatures," INDOCRYPT 2016 (eprint 2017/033)**, §5.5, where multiplicity-weighted priors appear:
+
+> *"We use this observation as follows. We create a vector u which contains the unique elements of y₁. We then compute P(z_i ∼ u_j | u). For that, we use the number of times each u_j appears in u as prior probabilities (instead of the uniform distribution)."*
+
+Pessl DOES use multiplicity-weighted (non-uniform) priors in shuffled-SCA context. The differences from our work:
+
+| Aspect | Pessl §5.5 | Our Lemma 5.2 |
+|---|---|---|
+| Perspective | Attacker's likelihood-matrix optimization | Defender's information-theoretic accuracy bound |
+| Mathematical object | P(z_i ∼ u_j \| u) for matching shuffled coefficients | P(real = v \| M) = c_v(M)/k for per-call security |
+| Granularity | Polynomial (N=512 BLISS coefficients per signature) | Single-sample (k=4 candidates per BerExp call) |
+| Goal | Construct attack that recovers full shuffle | Prove information-theoretic ceiling on attacker accuracy |
+| Result type | Empirical trace count for attack success | Closed-form accuracy bound |
+
+**Our work is essentially the dual perspective** (defender-side, single-sample granularity) of Pessl §5.5's idea (attacker-side, polynomial granularity).
+
+### Refined novelty statement
+
+> "To our knowledge, μ(π, k) = E_M[max_v c_v(M)/k] is the first **closed-form, defender-side, Bayes-optimal per-trace accuracy bound for shuffling-with-dummies under non-uniform secret prior**. Existing formal bounds for shuffling countermeasures in the SCA literature explicitly assume uniform secret distributions (Veyrat-Charvillon, Medwed, Kerckhof, Standaert, ASIACRYPT 2012, §1; Azouaoui, Bronchain, Grosso, Papagiannopoulos, Standaert, TCHES 2022(2), Eq. 4). Work addressing non-uniform secrets in lattice signatures is empirical or attack-based: Pessl (INDOCRYPT 2016, §5.5) uses multiplicity-weighted priors in an attacker's likelihood matrix for BLISS polynomial unshuffling, providing the closest dual to our defender-side bound."
+
+The underlying finite-exchangeability principle is classical (de Finetti 1937; Aldous 1985); our contribution is the application to a specific shuffling-with-dummies setting with non-uniform secrets where existing frameworks do not apply.
+
+---
+
+## 11. What unblocks SP1.2
 
 With Claim 1 in this form, SP1.2 (horizontal independence) becomes:
 
