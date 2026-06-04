@@ -1,8 +1,14 @@
-# Level 1 Study Kit: SCA Foundations for F2-radical
+# Study Plan: SCA Foundations + F2-Radical Verification (4-level ladder)
 
-**Goal**: build the Bayesian + side-channel-analysis foundation needed to evaluate F2's claims.
+**Goal**: build the Bayesian + side-channel-analysis foundation needed to evaluate F2's claims, then read Lin et al. PKC 2025, the shuffling literature, and our F2 docs fluently.
 
-**Total time**: 1.5–2 hours focused reading. After this kit, you'll have the vocabulary and math to read Lin et al. PKC 2025, Pessl 2016, Azouaoui 2022, and our `PHASE1_PROOF_CLAIM1.md` fluently.
+**Total time**: ~6-8 hours focused reading. Spread over a week or follow the 10-day daily schedule at the bottom.
+
+**Structure**: 4 levels, each builds on the previous.
+- **Level 1** (~1.5 h): SCA basics — what is a trace, why Bayes shows up, MAP estimator
+- **Level 2** (~2 h): Falcon + Lin et al. — what F2 protects, what F1 does
+- **Level 3** (~2 h): Shuffling framework — existing theory we generalize
+- **Level 4** (~2 h): F2 itself — read our claims with full context
 
 ---
 
@@ -19,9 +25,13 @@ study_kit/
 
 All four downloaded from open sources (Microsoft Research / IACR ePrint / Springer open access).
 
+Levels 2-4 reference materials NOT in this kit — see each level for where to find them.
+
 ---
 
-## Reading plan (ordered, ~90 minutes total)
+# Level 1: SCA basics (~1.5 hours)
+
+You need to understand **what a template attack is** and **why Bayes shows up in SCA**.
 
 ### 📖 Reading 1: Chari, Rao, Rohatgi. "Template Attacks." CHES 2002 (30 minutes)
 
@@ -77,30 +87,24 @@ All four downloaded from open sources (Microsoft Research / IACR ePrint / Spring
 
 ---
 
-### 📖 Reading 3: Standaert, Malkin, Yung. "A Unified Framework for the Analysis of Side-Channel Key Recovery Attacks." EUROCRYPT 2009 (~30 minutes)
+### 📖 Reading 3: Mangard, Oswald, Popp. "Power Analysis Attacks" Ch. 4 §4.5 (30 minutes)
 
-**File**: `standaert_unified_2009.pdf` (32 pages, 1.1 MB)
+**File**: not in this kit (copyrighted textbook, 2007). If you have access via your library, read Ch. 4 §4.5 "Statistical Methods" (~30 pages). Otherwise use **Standaert-Malkin-Yung 2009** as a free substitute (see Optional Reading below).
 
 **What you're learning**:
-- The standard SCA evaluation framework (mutual information + success rate)
-- How to bound an attack's success probabilistically
-- Where the "data complexity" notion comes from
+- SNR, hypothesis testing, Hamming-weight model
+- The vocabulary of "leakage" beyond template attacks
+- Foundational concepts every SCA paper assumes
 
 **Sections to focus on**:
 
-| Section | Pages | Time | What to take away |
-|---|---|---|---|
-| Abstract + §1 Intro | 1–3 | 5 min | The two metrics: success rate (SR) and guessing entropy (GE). These are the "outputs" of SCA evaluation. |
-| §3 The Framework | 6–10 | 15 min | Definitions of leakage random variables, target intermediate value. Notation used by every subsequent SCA paper (including Azouaoui 2022). |
-| §4 Information-Theoretic Metrics | 10–14 | 10 min | Mutual information `MI(K; L)` between key and leakage. Why `MI` determines data complexity. |
-| Rest | optional | skip | Application examples and proofs |
+| Topic | Time | What to take away |
+|---|---|---|
+| Signal-to-Noise Ratio (SNR) | 10 min | How "leakage strength" is quantified. SNR = var(signal) / var(noise). |
+| Hypothesis testing on traces | 10 min | t-tests, correlation. The basis of TVLA. |
+| Hamming-weight / Hamming-distance models | 10 min | The standard leakage abstraction. Used in every SCA paper. |
 
-**After this reading you should be able to**:
-- Read "MI(Y; L)" and understand it as "mutual information between secret and leakage"
-- Distinguish "data complexity" (number of traces) from "per-trace accuracy"
-- Recognize the Bayes-optimal classifier in their framework
-
-**Connection to F2**: This is the framework Veyrat-Charvillon 2012 and Azouaoui 2022 build on. Their "data-complexity bounds" use MI notation from this paper. Our μ(π, k) is a different metric (per-trace accuracy of optimal classifier) but uses the same probabilistic vocabulary.
+**Connection to F2**: Phase 3 reports SNR per leakage source. Lin et al. Table 5 implicitly uses an HW model. Recognizing "the bus leaks HW(addr)" or "the register leaks HW(value)" is essential vocabulary.
 
 ---
 
@@ -114,15 +118,94 @@ All four downloaded from open sources (Microsoft Research / IACR ePrint / Spring
 
 ---
 
-## After Level 1: where to go next
+**After Level 1 you can read the rest with proper vocabulary**: "trace," "template," "posterior," "MAP estimator," "SNR."
 
-You're now equipped for Level 2 (Falcon + Lin et al.):
+---
 
-1. Read **Lin et al. PKC 2025** §3 (samplers + leakages) — `~/Desktop/masked falcon.pdf`
-2. Read **Lin et al. PKC 2025** §6.1 Algorithm 6 (the F1 countermeasure)
-3. Read **Lin et al. PKC 2025** Table 5 (the 0.58 baseline)
+# Level 2: Falcon and Lin et al. (~2 hours)
 
-See `../REVIEW_PACKAGE.md` §8 ("Suggested review path") for the full sequence.
+Now learn **what F2 is protecting** and **what Lin et al. PKC 2025 (F1) does**.
+
+| Read | Section | Time | Key takeaway |
+|---|---|---|---|
+| **Falcon spec (Pornin et al. 2020 NIST submission)** | §3.9 "Sampler over the integers" | 30 min | What `gaussian0_sampler` is, what z₀ is, what the RCDT table encodes. |
+| **Falcon spec** | Algorithm 11 (SamplerZ pseudocode) | 15 min | The actual algorithm being protected: BaseSampler + BerExp + reject loop. |
+| **Lin, Zhang, Yu, Wang. PKC 2025 (eprint 2025/351)** | §3 "Falcon's Integer Gaussian Samplers and Their Leakages" | 30 min | What sources of leakage exist (5 of them). Why z₀ leaks. |
+| **Lin et al. PKC 2025** | §6.1 "Countermeasures" + Algorithm 6 | 30 min | The F1 algorithm: 19-row constant-time enumeration. This is what F2 replaces. |
+| **Lin et al. PKC 2025** | §6.2 Table 5 | 15 min | The 0.58 baseline accuracy. Where the number we beat comes from. |
+
+**Where to find materials**:
+- Falcon spec: `https://falcon-sign.info/falcon.pdf` (NIST PQC submission, public)
+- Lin et al. PKC 2025: `~/Desktop/masked falcon.pdf` (local copy) or `eprint.iacr.org/2025/351`
+
+**After Level 2 you can read the F2 sign.c diff and follow it**: F1 vs F2 are the `#ifdef F2_RADICAL` switch.
+
+---
+
+# Level 3: Shuffling framework (~2 hours)
+
+Now learn **how existing papers analyze shuffled SCA**.
+
+| Read | Section | Time | Key takeaway |
+|---|---|---|---|
+| **Veyrat-Charvillon, Medwed, Kerckhof, Standaert. ASIACRYPT 2012** | §1 (intro) + summary in §5-6 | 30 min | The standard data-complexity bound for shuffled AES (uniform secret). Bayesian framework for shuffled SCA. |
+| **Azouaoui, Bronchain, Grosso, Papagiannopoulos, Standaert. TCHES 2022(2) (eprint 2021/951)** | §2.1-2.2 (notations + IT metrics) | 30 min | The masking + shuffling framework. Read Eq. (4) carefully — the uniform-Y assumption we generalize. |
+| **Pessl. INDOCRYPT 2016 (eprint 2017/033)** | §1, §3, §5.4-5.5 | 45 min | The cautionary tale on BLISS polynomial shuffling. §5.5 is the closest math neighbor — read carefully. |
+| **(Optional) Standaert, Malkin, Yung. EUROCRYPT 2009** | §1-2 | 15 min | The "unified framework" for SCA. Defines mutual information vs success rate. (Free substitute for Mangard textbook in Level 1.) |
+
+**Where to find materials**:
+- Veyrat-Charvillon 2012: `https://perso.uclouvain.be/fstandae/PUBLIS/121.pdf`
+- Azouaoui 2022: `eprint.iacr.org/2021/951`
+- Pessl 2016: `eprint.iacr.org/2017/033`
+- Standaert-Malkin-Yung 2009: in this kit as `standaert_unified_2009.pdf`
+
+**After Level 3 you understand**: why existing bounds assume uniform secrets, why Pessl's BLISS attack matters, what's missing for Falcon (non-uniform π).
+
+---
+
+# Level 4: F2 itself (~2 hours)
+
+Now read **our F2 claims** with full context.
+
+| Read | Section | Time | Key takeaway |
+|---|---|---|---|
+| **`easycrypt_f2/REVIEW_PACKAGE.md`** | All | 20 min | Single-page summary of everything F2 claims |
+| **`easycrypt_f2/PHASE1_PROOF_CLAIM1.md`** | §1-5 (theorem + lemmas) | 45 min | The main bound. Lemma 5.2 (posterior `c_v(M)/k`) is the load-bearing math. |
+| **`easycrypt_f2/PHASE1_PROOF_CLAIM1.md`** | §10 (novelty discussion) | 20 min | The verified novelty position — why F2's bound is distinct from prior work. |
+| **Run `bayes_bound.py --tightness`** | (5 min runtime) | 10 min reading output | Empirical evidence that the bound is tight. |
+| **`easycrypt_f2/PHASE1_PROOF_CLAIM2.md`** | §1-4 (per-call rate) | 25 min | The horizontal independence theorem. Why the per-call bound carries to M-call signatures. |
+| **`easycrypt_f2/PHASE1_PROOF_CLAIM2.md`** | §6 (implementation requirements IR1-IR7) | 15 min | Why per-call independence requires specific implementation discipline. |
+
+**After Level 4 you can verify F2's claims line-by-line against the prior work and our novel contributions.**
+
+---
+
+## ★ Insight notes
+
+- **Level 1 is the most important investment.** If template attacks and Bayesian decision theory don't click, nothing in Levels 2-4 will. Spend the full hour on Chari 2002 + Bishop §1.5 if needed; the ROI is huge.
+- **Level 3 is the differentiator.** Most people who claim to "know SCA" stop at Level 2 (Falcon + Lin). Reading Veyrat-Charvillon + Azouaoui + Pessl is what makes you actually qualified to evaluate F2's novelty.
+- **Don't skip Pessl §5.5.** It's the single closest prior result to our Lemma 5.2. If you understand the difference between Pessl's attacker-side likelihood matrix and our defender-side accuracy bound, you've understood F2's core contribution.
+- **You can run `bayes_bound.py` BEFORE reading PHASE1_PROOF_CLAIM1.md.** Seeing the numbers (μ(π, 4) = 0.547, empirical = 0.546) makes the theorem more concrete. The math is what the program is computing, not the other way around.
+- **Skip the Bishop reading if you already know MAP estimation**. The Chari 2002 paper covers enough Bayesian SCA to follow F2's argument.
+
+---
+
+## Suggested daily schedule (10 days, ~30 min/day)
+
+| Day | Read | Time |
+|---|---|---|
+| 1 | Chari 2002 §1-3 | 30 min |
+| 2 | Bishop §1.5 + Mangard 4.5 | 30 min |
+| 3 | Falcon spec §3.9 + Alg 11 | 45 min |
+| 4 | Lin §3 + §6.1 (Alg 6) | 45 min |
+| 5 | Lin §6.2 Table 5 + Veyrat-Charvillon §1 | 30 min |
+| 6 | Azouaoui §2.1-2.2 (Eq. 4!) | 30 min |
+| 7 | Pessl §1, §3, §5.4-5.5 | 45 min |
+| 8 | F2 REVIEW_PACKAGE.md + run bayes_bound.py | 30 min |
+| 9 | PHASE1_PROOF_CLAIM1.md §1-5 | 45 min |
+| 10 | PHASE1_PROOF_CLAIM1.md §10 + PROOF_CLAIM2.md §1-4 | 45 min |
+
+By day 10 you can evaluate every F2 claim with the proper context.
 
 ---
 
@@ -152,5 +235,5 @@ After Level 1, you should recognize these terms:
 
 ---
 
-*Author: F2 project, Level 1 study kit. Last updated: 2026-05-18.*
-*All PDFs downloaded from open access sources.*
+*Author: F2 project, 4-level study plan. Last updated: 2026-05-26.*
+*Level 1 PDFs in this kit; Levels 2-4 reference external materials.*
