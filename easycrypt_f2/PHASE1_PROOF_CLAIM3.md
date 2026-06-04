@@ -1,5 +1,8 @@
 # Phase 1, Claim 3: Leakage-Invariance Specification (Empirical Bridge to Phase 3)
 
+> **Current status — stale measurement-target note (2026-06-04).**
+> The original `epsilon_leak` permutation-invariance test is insufficient as the sole empirical gate. Current experiments require separate gates for selector leakage, accept/event conditioning, selected-value opening, and excess `z0_real` leakage over an explicit oracle.
+
 **Status**: SP1.3 deliverable (week 6 of Phase 1). Specification document, not a proof.
 **Prerequisites**: `PHASE1_PROOF_CLAIM1.md` (defines ε_leak; §7 lists hardware sources), `PHASE1_PROOF_CLAIM2.md` (defines per-call independence; §6 lists implementation requirements), `KILL_PLAN_SECURITY.md` §SP1.3.
 **What this document does**: defines `ε_leak` rigorously, specifies the empirical test protocol that measures it on Chipwhisperer-Lite, and sets pass/fail thresholds derived from Claims 1 and 2.
@@ -8,7 +11,9 @@
 
 ## 1. Why Claim 3 is different
 
-Claims 1 and 2 are mathematical theorems whose statements bottom out at one unmeasured parameter: `ε_leak`. The math tells us:
+The old Claims 1 and 2 were mathematical theorems whose statements bottomed out at one unmeasured parameter: `ε_leak`. That is no longer enough. The active measurement plan needs separate empirical obligations for selector leakage, oracle-conditioned accept/event leakage, selected-value opening, and excess `z0_real` leakage.
+
+The old math said:
 
 ```
 Adv_HZ  ≤  μ(π, k)  -  π(0)  +  ε_leak
@@ -67,7 +72,7 @@ For the security claim "F2 is at least as secure as Lin et al.'s 0.58":
 ε_leak  ≤  0.033
 ```
 
-So **any** ε_leak < 0.033 makes F2(k=4) match Lin's bound. For F2 to be *strictly stronger*, we want ε_leak well below this. Setting safety margin and accounting for the horizontal residual:
+Under the old multiset-only theorem, any `ε_leak < 0.033` would have made F2(k=4) match Lin's bound. This is archival. The current pass/fail rule must compare measured leakage against the observation-conditioned oracle and Lin baseline. The old target table was:
 
 | Target | ε_leak | What it buys | Verdict |
 |---|---|---|---|

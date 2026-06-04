@@ -1,8 +1,11 @@
 # Phase 1, Claim 2: Horizontal Independence Bound for F2-radical
 
-**Status**: SP1.2 deliverable (week 5 of Phase 1). Sketch quality; for review at G1.2 (week 5 end).
+> **Current status — stale dependency note (2026-06-04).**
+> This document depends on the old single-call `mu(pi,k)+epsilon` claim. Its independence/composition structure may be reusable, but the bound must be rewritten after the single-call theorem becomes observation-conditioned.
+
+**Status**: archival SP1.2 deliverable; superseded until Claim 1 is rewritten around an observation-conditioned oracle.
 **Prerequisites**: `PHASE1_PROOF_CLAIM1.md` (single-call bound), `PHASE1_MATH_SKETCH.md` §2-3 (notation, games).
-**What this document proves**: under per-call independence, Claim 1's bound composes to the multi-call horizontal setting without aggregation gain. **Key corollary**: full-vector key recovery is computationally infeasible.
+**What this document previously argued**: under per-call independence, the old Claim 1 bound composes to the multi-call horizontal setting. The composition structure may be reusable, but the numerical bound is stale.
 
 ---
 
@@ -273,10 +276,10 @@ A more careful analysis (Phase 4 paper section) would quantify the lattice decod
 
 ## 9. The composed main theorem (preview)
 
-Combining Claim 1 (single-call) and Claim 2 (horizontal), the main theorem of the paper is:
+Combining the old Claim 1 (single-call) and old Claim 2 (horizontal), the previous main theorem was:
 
 ```
-Theorem (main, paper-ready).
+Theorem (old main theorem; archival, not paper-ready).
 Let F2-radical^{k} be the F2 countermeasure with k candidates per BerExp call.
 Under per-call independence (Definitions 6-7), for any PPT adversary against
 M SamplerZ calls in one Falcon-512 signature:

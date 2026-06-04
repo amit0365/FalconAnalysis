@@ -1,12 +1,15 @@
 # Phase 1, Main Theorem: F2-radical Security Composition
 
-**Status**: SP1.4 deliverable (week 7 of Phase 1). The final composition.
+> **Current status — stale theorem note (2026-06-04).**
+> This document is not the current theorem. It assumes traces reduce to a multiset plus `epsilon_leak`, which current experiments show is too coarse. Do not formalize this statement in EasyCrypt. The current target is `BayesOracle(pi,k,O)+epsilon`, with a separate d2 ASM selector-security claim; see `CURRENT_PROOF_ROADMAP.md`.
+
+**Status**: archival SP1.4 deliverable; superseded by `CURRENT_PROOF_ROADMAP.md`.
 **Prerequisites**: `PHASE1_PROOF_CLAIM1.md`, `PHASE1_PROOF_CLAIM2.md`, `PHASE1_PROOF_CLAIM3.md`.
-**What this document does**: composes Claims 1, 2, and 3 into one main theorem statement; states the paper-ready corollaries; tabulates assumptions and where each is discharged.
+**What this document did**: composed the old Claims 1, 2, and 3 into the previous theorem statement. It is retained for traceability, not as the active proof.
 
 ---
 
-## 1. The main theorem (paper-ready)
+## 1. The old main theorem (archival, not current)
 
 **Theorem (F2-radical security, main result of the paper)**.
 Let Falcon-512 be instantiated with the F2-radical countermeasure, with `k` candidates per protected BerExp call. Let `π` be the PMF of Falcon's `gaussian0_sampler` (from RCDT in `sign.c`). Let:
@@ -151,7 +154,7 @@ Hence the partial-recovery threshold is not met, and lattice decoding fails. F2(
 | Provable d-SNI floor | informal | informal (matchable with F2+masking variant) |
 | Bit-identical to reference Falcon | yes | yes |
 
-**F2-radical strictly dominates F1 on three of five metrics** at Target A and is comparable on the other two. This is the Pareto-improvement claim.
+**Archival interpretation**: under the old multiset-only model, this table was used to argue a Pareto improvement. That interpretation is no longer current; the active comparison must use `z0_real` leakage versus an observation-conditioned oracle and Lin baseline.
 
 ### Corollary 5.4 (Composability with H2)
 
@@ -310,7 +313,7 @@ With the main theorem now in hand, the paper outline is:
 ⏳ SP1.5   EasyCrypt formalization      this week + spillover
 ```
 
-The **mathematical security argument is complete**. What remains in Phase 1 is the EasyCrypt formalization (SP1.5), which is a translation of these documents into machine-checkable form.
+The old mathematical security argument is no longer complete for the current implementation claim. EasyCrypt formalization should wait until the theorem is rewritten around `BayesOracle(pi,k,O)+epsilon` and the d2 ASM selector obligation.
 
 ---
 

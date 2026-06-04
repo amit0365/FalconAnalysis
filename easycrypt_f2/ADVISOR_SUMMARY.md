@@ -1,5 +1,8 @@
 # F2: A Cheaper Alternative to Lin et al. PKC 2025 — Advisor Summary
 
+> **Current status — stale archival note (2026-06-04).**
+> This document reflects the pre-selector-masking proof model. Do not use its “strictly stronger than Lin” or “math complete” claims as current. The current proof entry point is `README.md`, with the replacement roadmap in `CURRENT_PROOF_ROADMAP.md` and the stale-claim inventory in `STALE_AUDIT.md`.
+
 *One-page brief on Phase 1 status, decision points needed.*
 *Date: 2026-05-15. Companion artifacts at `/Users/ak36/Desktop/rust/masked_falcon/easycrypt_f2/`.*
 
@@ -7,13 +10,13 @@
 
 ## TL;DR
 
-A countermeasure for Falcon's BerExp side-channel leakage that **beats PKC 2025 (Lin et al.)** on both security and cost. Phase 1 math is complete; pending external review (you), implementation (Phase 2), and Chipwhisperer evaluation (Phase 3). Estimated 6-9 months to paper, targeting CHES/TCHES 2027.
+Archival summary of the original F2-radical thesis. Current experiments preserve the performance premise and establish that d2 ASM selector masking removes direct `z0_idx` leakage, but the full security comparison against Lin remains open because `z0_real` leakage must be compared against an observation-conditioned oracle.
 
 ---
 
 ## The thesis (one sentence)
 
-> Replacing Lin et al.'s 19-row constant-time enumeration of Falcon's BerExp with `k=4` shuffled "1 real + 3 dummy" calls per BerExp gives **strictly better per-call SCA security (0.547 vs 0.580 template-attack accuracy)** at **3.09× lower e2e signing overhead** (measured on pristine main: 7946 µs/sig F1 vs 2573 µs/sig F2), while remaining bit-identical to reference Falcon.
+> Current thesis: replacing Lin et al.'s protected BerExp path with F2's four BerExp calls plus a d2 ASM selector gives a large protected-path speedup while eliminating direct `z0_idx` selector leakage. The unresolved security question is whether `z0_real` leakage is comparable to Lin after conditioning on the correct oracle observations.
 
 ## Key numerical results (Phase 1)
 

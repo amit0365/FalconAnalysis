@@ -1,5 +1,8 @@
 # F2 Project Kill Plan
 
+> **Current status — stale archival note (2026-06-04).**
+> This plan predates the d2 ASM selector work and the oracle-conditioned proof target. Treat the original `Acc(F2_k) <= mu(pi,k)` gate as archival only. Current work should follow `CURRENT_PROOF_ROADMAP.md`.
+
 **Project**: F2 — shuffled-with-dummies countermeasure for Falcon's BerExp, as a cheaper alternative to Lin et al. PKC 2025's constant-time enumeration.
 **Status**: Phase 1 in progress.
 
@@ -7,9 +10,9 @@
 
 ## Thesis (the single claim we're trying to kill)
 
-> Replacing Lin et al.'s 19-row constant-time BerExp enumeration with a `k`-call shuffled BerExp (1 real + (k−1) indistinguishable dummies in random order) provides equivalent-or-better single-trace SCA resistance (template-attack accuracy ≤ μ(π,k), vs Lin's 58%) at ~k/19 cost, while remaining bit-identical to reference Falcon.
+> Current claim under test: replacing Lin et al.'s protected BerExp path with F2's four BerExp calls plus a d2 ASM selector preserves a large speed advantage and removes direct `z0_idx` selector leakage. Security equivalence to Lin is not yet proven; it depends on `z0_real` leakage relative to an observation-conditioned oracle and Lin baseline.
 
-**Revised after P0**: the original "1/k = 25%" bound from symmetric crypto does not apply (Falcon's prior is non-uniform). The correct bound is the Bayes-optimal multiset-predictor accuracy `μ(π, k)`. For k=4: `μ(π, 4) = 0.547` < Lin's 0.58 (see `G1_0_RESULT.txt`).
+**Revised again after selector experiments**: the original "1/k = 25%" bound and the later pure-multiset `μ(π,k)` bound are not sufficient as implementation-level security claims. `μ(π,k)` remains a valid pure multiset oracle component, but the current bound must condition on explicit observations `O`.
 
 **F2 design locked**: F2-radical (shuffle at gaussian0_sampler output level; only compute BerExp for k candidates). NOT F2-conservative (which keeps Lin's enumeration and costs more).
 

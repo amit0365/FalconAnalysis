@@ -1,5 +1,8 @@
 # C3 — Bound Tightness for F2-radical via Explicit Attack Construction
 
+> **Current status — narrowed validity note (2026-06-04).**
+> The tightness argument remains valid for the pure multiset-only oracle. It is stale as a full-trace implementation claim. Future tightness statements must be parameterized by the observation variable `O`.
+
 **Status**: C3 deliverable (3 of 3 theory-polish tasks).
 **What this addresses**: critical-review concern C3 — "You prove Adv ≤ μ(π,k) + ε. You don't prove this is tight."
 **Resolution**: **The bound is tight. The Bayes-optimal multiset estimator is the explicit attack achieving accuracy μ(π, k) under ε_leak = 0, and we demonstrate this empirically via simulation.**

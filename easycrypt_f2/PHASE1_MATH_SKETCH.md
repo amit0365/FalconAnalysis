@@ -1,6 +1,9 @@
 # Phase 1 Math Sketch: F2 (Shuffled-with-Dummies) Falcon BerExp
 
-**Status**: Architectural draft, week 1 of Phase 1.
+> **Current status — stale proof-sketch note (2026-06-04).**
+> This sketch is useful for the pure multiset game, but stale as a model of implementation traces. The current proof must parameterize observations explicitly as `O` and compare measured leakage against `BayesOracle(pi,k,O)`.
+
+**Status**: archival architectural draft; useful only for the pure multiset subgame and notation.
 **Companion to**: `easycrypt_h2/` (precision-side proof for H2 row truncation).
 **Goal of this doc**: define the adversary, define the security game, state the main theorem, sketch the proof. The actual EasyCrypt formalization comes after this sketch is reviewed.
 
@@ -109,7 +112,9 @@ Note `Exp_F2-HZ` returns a *rate* of correct guesses, not a single bit.
 
 ---
 
-## 4. The two theorems we must prove
+## 4. The old theorems this sketch tried to prove
+
+These theorem targets are archival. The current theorem target must condition on an explicit observation variable `O`.
 
 ### Theorem 1 (single-call bound)
 

@@ -1,5 +1,8 @@
 # Phase 1 Kill Plan: Security Argument Sub-Plan
 
+> **Current status — stale archival note (2026-06-04).**
+> This security kill plan uses the old multiset-only theorem target. Current experiments require an observation-conditioned oracle bound and a separate d2 ASM selector claim. Use `CURRENT_PROOF_ROADMAP.md` for the active proof plan.
+
 **Scope**: the security proof half of Phase 1. Companion to the overall `KILL_PLAN.md`.
 
 ---

@@ -1,5 +1,8 @@
 # F2-radical: Review Package
 
+> **Current status — stale archival note (2026-06-04).**
+> This review package predates the d2 ASM selector and overstates the security conclusion. Do not use the “strictly stronger” or “math complete” claims as current. Use `README.md`, `STALE_AUDIT.md`, and `CURRENT_PROOF_ROADMAP.md` for the active state.
+
 **Single-document summary of completed F2-radical work.**
 **Branch**: `f2-radical-clean` on `amit0365/FalconAnalysis` (7 commits ahead of `lxhcrypto/main`).
 **Date**: 2026-05-16.
@@ -11,14 +14,14 @@
 
 **F2-radical** is a side-channel countermeasure for Falcon's `BerExp` that replaces Lin et al.'s [PKC 2025] constant-time 19-row enumeration with k=4 shuffled-with-dummies BerExp calls.
 
-**Result**: F2-radical is **strictly stronger AND 2.35× — 3.09× faster** than Lin's F1 across all measured platforms. Mathematical security argument is complete; hardware SCA validation (Phase 3) is the remaining work.
+**Current result**: F2-radical with d2 ASM selector masking removes direct `z0_idx` selector leakage in the ELMO proxy and preserves a large protected-BerExp-path speedup. It is not yet proven strictly stronger than Lin; the remaining question is `z0_real` leakage versus Lin and versus the correct oracle.
 
 | Axis | F2-radical | Lin et al. F1 | Verdict |
 |---|---|---|---|
-| Per-call template-attack accuracy | **0.547** (Bayes-optimal bound, tight) | 0.580 (measured) | F2 is 0.033 stronger |
-| Per-call adversary advantage over prior (0.36) | 0.187 | 0.220 | F2 strictly better |
-| Full-vector key-recovery probability | ≤ 0.547^M ≈ **2⁻¹⁵⁵⁸⁰** for Falcon-512 | comparable | both infeasible |
-| Per-signature cost on Apple Silicon | **2573 µs** | 7946 µs | **3.09× faster** |
+| Pure multiset oracle | **0.547** for k=4 | 0.580 measured F1 figure | Not a full implementation comparison |
+| Direct `z0_idx` selector leakage | d2 ASM selector clean in proxy | Lin direct `select_zprime` leaks in local proxy | F2 selector layer improved |
+| `z0_real` leakage | unresolved vs oracle/Lin | needs matched window comparison | blocking security claim |
+| Protected BerExp-path cost | **35,480 cycles** in ELMO proxy | **325,947 cycles** in ELMO proxy | **9.19× protected-path speedup** |
 | Per-signature cost on Cortex-M4 (QEMU SYSTICK) | **516K cycles** | 1.21M cycles | **2.35× faster** |
 | Bit-identical to reference Falcon | ✅ | ✅ | same |
 | Implementation size | ~100 lines C | ~300 lines C | F2 simpler |

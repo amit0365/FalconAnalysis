@@ -1,5 +1,8 @@
 # C6 — Multi-Signature Aggregation Analysis for F2-radical
 
+> **Current status — conditional archival note (2026-06-04).**
+> The aggregation structure may still be reusable after the single-call theorem is rewritten, but all bounds depending directly on `mu(pi,k)+epsilon` inherit the stale proof target. Rebase this file on `BayesOracle(pi,k,O)+epsilon` before citing it.
+
 **Status**: C6 deliverable (2 of 3 theory-polish tasks).
 **What this addresses**: critical-review concern C6 — "Across 10⁶ signatures, F2 leaks ~10¹⁰ partial guesses, defeating it just like Lin's F1."
 **Honest verdict**: **F2 does not fix multi-signature aggregation. It inherits F1's vulnerability. We must state this prominently as a scope limitation.**
@@ -8,7 +11,7 @@
 
 ## 1. The threat model we must address
 
-Theorems C1 and C2 cover the **single-signature** regime: per-call adversary accuracy ≤ μ(π,k) + ε, and full-vector recovery ≤ (μ+ε)^M per signature.
+The old Theorems C1 and C2 covered the **single-signature** regime with per-call adversary accuracy ≤ μ(π,k) + ε and full-vector recovery ≤ (μ+ε)^M per signature. That bound is stale until the single-call theorem is rewritten around `BayesOracle(pi,k,O)+epsilon`.
 
 **Multi-signature aggregation** is different: across `N_sig` signatures over a key's lifetime, an attacker accumulates partial information about the secret `(f, g)` polynomials and uses **lattice-decoding / parallelepiped attacks** to recover the trapdoor basis.
 

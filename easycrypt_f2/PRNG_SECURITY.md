@@ -1,5 +1,8 @@
 # C7 — PRNG Security for the F2-radical Shuffle
 
+> **Current status — mostly reusable note (2026-06-04).**
+> The PRNG/shuffle discussion remains mostly orthogonal and reusable, but formulas that plug directly into the old `mu(pi,k)+epsilon` theorem must be ported to the new observation-conditioned proof statement.
+
 **Status**: C7 deliverable (1 of 3 theory-polish tasks).
 **What this addresses**: critical-review concern C7 — "The shuffle is only as good as the PRNG. Cite it."
 

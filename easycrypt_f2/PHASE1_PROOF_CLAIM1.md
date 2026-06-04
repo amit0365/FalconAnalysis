@@ -1,5 +1,8 @@
 # Phase 1, Claim 1: Single-Call Bayes-Optimal Bound for F2-radical
 
+> **Current status — partially valid, over-scoped proof note (2026-06-04).**
+> The posterior calculation for the pure multiset-only game remains valid. The theorem bounding implementation traces by `mu(pi,k)+epsilon` is stale because current experiments show accept-vector/event/value observations and selector implementation details matter. Reuse only the multiset posterior lemma unless the observation model is explicitly restricted to `M`.
+
 **Status**: SP1.1 deliverable (weeks 2-3 of Phase 1). Sketch quality; for external review at G1.1 (week 4).
 **Prerequisites**: `PHASE1_MATH_SKETCH.md` §1-5, `bayes_bound.py` output, Falcon RCDT (from `easycrypt_h2/precision/berexp_rows.py`).
 **What this document proves**: the single-call security bound for F2-radical with `k` candidates.
@@ -8,7 +11,7 @@
 
 ## 1. Theorem statement
 
-**Theorem C1 (single-call F2-radical security).**
+**Theorem C1 (old single-call F2-radical security; archival).**
 Let `π` be the PMF of Falcon's `gaussian0_sampler` output `z₀ ∈ {0..18}`. Let `D = π` (dummies drawn from the same distribution as real). Let `L` be the leakage function of one F2-radical BerExp call with `k` candidates, ε-permutation-invariant per Definition 3 below. Then for all PPT adversaries `A_single` in the single-call F2 game:
 
 ```
@@ -16,6 +19,8 @@ Pr[A_single(τ) = z₀]  ≤  μ(π, k)  +  ε_leak
 ```
 
 where `μ(π, k) = E_M[ c_{g*(M)}(M) / k ]` is the **Bayes-optimal multiset-predictor accuracy** and `g*(M) = argmax_v c_v(M)` with ties broken by larger π.
+
+**Current replacement target**: keep the posterior theorem for the pure multiset game, but replace the implementation-trace bound with `BayesOracle(pi,k,O)+epsilon`, where `O` explicitly includes observations such as accept vector, accept/reject event, selected value, and trigger-window metadata.
 
 Numerical instance (from `bayes_bound.py`):
 
@@ -279,11 +284,11 @@ The **total** ε_leak is upper-bounded by the union (via union bound) but in pra
 
 ## 8. Implications for paper's main claim
 
-We can now state the headline result precisely:
+The old proof attempted to state the headline result as follows:
 
-**Theorem (informal, paper-ready)**: For Falcon-512 with F2-radical at k=4 candidates per BerExp call, the optimal single-trace template adversary's accuracy on `z₀` is at most `0.547 + ε_leak` per call. Under per-call independence (Claim 2, forthcoming), the same bound applies to horizontal aggregation across all `M ≈ 18,000` SamplerZ calls in one signature. With `ε_leak < 5 × 10⁻⁶` (Phase 3 target on Chipwhisperer-Lite), the effective adversary advantage is bounded by `0.547 + 0.09 = 0.637` — comparable to the trivial prior-guess baseline (`0.360`) and *strictly tighter* than Lin et al.'s measured `0.58` against their F1 countermeasure.
+**Theorem (informal, archival, not paper-ready)**: For Falcon-512 with F2-radical at k=4 candidates per BerExp call, the optimal single-trace template adversary's accuracy on `z₀` is at most `0.547 + ε_leak` per call. Under per-call independence (Claim 2, forthcoming), the same bound applies to horizontal aggregation across all `M ≈ 18,000` SamplerZ calls in one signature. With `ε_leak < 5 × 10⁻⁶` (Phase 3 target on Chipwhisperer-Lite), the effective adversary advantage is bounded by `0.547 + 0.09 = 0.637` — comparable to the trivial prior-guess baseline (`0.360`) and *strictly tighter* than Lin et al.'s measured `0.58` against their F1 countermeasure.
 
-This says **F2(k=4) is at least as secure as Lin et al.** in the worst-case for ε_leak, and strictly stronger when hardware leakage is well-controlled. Combined with the cost savings (58.8% e2e speedup), this is the paper's Pareto-improvement claim.
+This old conclusion is no longer current. The active claim is narrower: d2 ASM selector masking removes direct `z0_idx` leakage; full F2 security still depends on `z0_real` leakage versus the observation-conditioned oracle and Lin baseline.
 
 ---
 

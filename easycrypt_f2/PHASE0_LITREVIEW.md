@@ -1,5 +1,8 @@
 # Phase 0 Literature Review: F2 Novelty Assessment
 
+> **Current status — partially stale note (2026-06-04).**
+> The novelty survey remains useful background, but the claimed security framing is stale where it relies on `mu(pi,4)` as the full implementation bound. Current framing: d2 ASM selector masking fixes direct `z0_idx` leakage; remaining `z0_real` leakage must be compared against an observation-conditioned oracle and Lin baseline.
+
 **Question**: Is "shuffling-with-dummies applied at single-sample granularity to Falcon's BerExp" novel? If so, what's the closest prior work?
 
 **Verdict**: PROCEED to Phase 1. F2 at single-sample granularity is novel. Pessl 2016's attack does not directly preempt it, but its horizontal-aggregation variant must be defeated in Phase 1.

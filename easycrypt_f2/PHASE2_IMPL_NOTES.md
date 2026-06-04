@@ -1,5 +1,8 @@
 # Phase 2 Implementation Notes — F2-radical Prototype
 
+> **Current status — stale implementation note (2026-06-04).**
+> This describes the early clear-selector F2 prototype. The current direction masks `z0_idx` with a d2 ASM selector; any references to clear `z0_idx` generation or clear final dispatch are pre-hardening notes.
+
 **Status**: Phase 2 week 1 complete. G1.2 gate PASSED.
 **Branch**: `f2-radical-prototype` (in `masked_falcon` repo, created from `h2-row-truncation`).
 **Files touched**: `Protected_Reference_Implementation/sign.c`.
