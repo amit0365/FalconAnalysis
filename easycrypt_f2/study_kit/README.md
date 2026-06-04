@@ -8,7 +8,20 @@
 - **Level 1** (~1.5 h): SCA basics — what is a trace, why Bayes shows up, MAP estimator
 - **Level 2** (~2 h): Falcon + Lin et al. — what F2 protects, what F1 does
 - **Level 3** (~2 h): Shuffling framework — existing theory we generalize
-- **Level 4** (~2 h): F2 itself — read our claims with full context
+- **Level 4** (~2 h): F2 itself — current oracle-conditioned proof direction
+
+---
+
+## ⚠ Status note (2026-06-04)
+
+The F2 proof stack was reorganized on 2026-06-04. The old headline theorem `accuracy ≤ μ(π,k) + ε` is **stale at the implementation-trace level** — current ELMO experiments show accept-vector, accept/reject events, and selected-value observations matter beyond the bare multiset. The pure **multiset oracle** part of the bound (Lemma 5.2's posterior `c_v(M)/k`) remains valid as one component.
+
+The current proof direction is oracle-conditioned: `accuracy ≤ BayesOracle(π,k,O) + ε_excess`, where `O` is the explicit observation model. See `../STALE_AUDIT.md` and `../CURRENT_PROOF_ROADMAP.md`.
+
+**Impact on this study plan**:
+- Levels 1-3 are **unaffected** (external papers, unchanged)
+- Level 4 has been rewritten below to point to current entry points + the still-valid pieces of the old proofs
+- Connection-to-F2 callouts in Level 1 are scoped to the multiset oracle component
 
 ---
 
@@ -57,7 +70,7 @@ You need to understand **what a template attack is** and **why Bayes shows up in
 - Explain why an attacker prefers max-likelihood over averaging
 - Recognize Eq. (1) — multivariate Gaussian noise PDF — when it appears elsewhere
 
-**Connection to F2**: Lin et al. PKC 2025 uses exactly this template-attack methodology to measure 58% accuracy on their F1. Our Phase 3 plan uses the same setup on Chipwhisperer. The "ε_leak" in our Theorem C1 is precisely the residual leakage that survives a template attack.
+**Connection to F2**: Lin et al. PKC 2025 uses exactly this template-attack methodology to measure 58% accuracy on their F1. Our Phase 3 plan uses the same setup on ELMO/Chipwhisperer. In the current oracle-conditioned framing, "excess leakage" (`ε_excess` in `CURRENT_PROOF_ROADMAP.md` Claim D) is precisely the measured-minus-oracle gap that survives a template attack.
 
 ---
 
@@ -83,7 +96,7 @@ You need to understand **what a template attack is** and **why Bayes shows up in
 - Explain why ties in the posterior don't affect expected accuracy
 - Recognize when a problem is "Bayesian classification"
 
-**Connection to F2**: Our Lemma 5.2 says `Pr[z₀ = v | M] = c_v(M)/k`. By Bishop §1.5.1, the optimal guess is argmax_v of this posterior — which is just "pick the most-frequent value." That's the 3-line `bayes_optimal_guess` function in our `bayes_bound.py`.
+**Connection to F2**: The multiset posterior `Pr[z₀ = v | M] = c_v(M)/k` (Claim A in `CURRENT_PROOF_ROADMAP.md`) remains valid. By Bishop §1.5.1, the optimal guess is argmax_v of this posterior — which is just "pick the most-frequent value." That's the 3-line `bayes_optimal_guess` function in `bayes_bound.py`. **Scope**: this is now the **Multiset Oracle** bound, not the full implementation bound.
 
 ---
 
@@ -163,20 +176,27 @@ Now learn **how existing papers analyze shuffled SCA**.
 
 ---
 
-# Level 4: F2 itself (~2 hours)
+# Level 4: F2 itself (~2 hours) — current oracle-conditioned direction
 
-Now read **our F2 claims** with full context.
+Now read **the current F2 direction** with full context. This level was rewritten on 2026-06-04 to match the post-staleness-audit state.
 
 | Read | Section | Time | Key takeaway |
 |---|---|---|---|
-| **`easycrypt_f2/REVIEW_PACKAGE.md`** | All | 20 min | Single-page summary of everything F2 claims |
-| **`easycrypt_f2/PHASE1_PROOF_CLAIM1.md`** | §1-5 (theorem + lemmas) | 45 min | The main bound. Lemma 5.2 (posterior `c_v(M)/k`) is the load-bearing math. |
-| **`easycrypt_f2/PHASE1_PROOF_CLAIM1.md`** | §10 (novelty discussion) | 20 min | The verified novelty position — why F2's bound is distinct from prior work. |
-| **Run `bayes_bound.py --tightness`** | (5 min runtime) | 10 min reading output | Empirical evidence that the bound is tight. |
-| **`easycrypt_f2/PHASE1_PROOF_CLAIM2.md`** | §1-4 (per-call rate) | 25 min | The horizontal independence theorem. Why the per-call bound carries to M-call signatures. |
-| **`easycrypt_f2/PHASE1_PROOF_CLAIM2.md`** | §6 (implementation requirements IR1-IR7) | 15 min | Why per-call independence requires specific implementation discipline. |
+| **`easycrypt_f2/README.md`** | All | 5 min | Entry point — directory layout, current vs stale, what to read first |
+| **`easycrypt_f2/STALE_AUDIT.md`** | All | 15 min | Inventory of stale claims and why the old `μ(π,k)+ε` target was scoped down |
+| **`easycrypt_f2/CURRENT_PROOF_ROADMAP.md`** | Claims A-E | 30 min | Current direction: A=Multiset Oracle, B=Selector Security (d2 ASM), C=Observation Oracle, D=Excess Leakage, E=Performance |
+| **`easycrypt_f2/PHASE1_PROOF_CLAIM1.md`** | §1-5 — **multiset posterior lemma only** | 25 min | The still-valid part: Lemma 5.2 posterior `c_v(M)/k`. Skip §6+ (full-trace theorem is stale) |
+| **Run `bayes_bound.py --tightness`** | (5 min runtime) | 10 min | Empirical tightness of `μ(π,k)` as a **Multiset Oracle** bound (Claim A) |
+| **`easycrypt_f2/PHASE1_PROOF_CLAIM2.md`** | §6 (IR1-IR7) only | 15 min | Implementation discipline notes still reusable as engineering practice |
 
-**After Level 4 you can verify F2's claims line-by-line against the prior work and our novel contributions.**
+**Skip as current** (archival only):
+- `REVIEW_PACKAGE.md`, `ADVISOR_SUMMARY.md` — stale archival, overstate "strictly stronger than Lin"
+- `PHASE1_MAIN_THEOREM.md` — explicitly marked "do not formalize"
+- `PHASE1_PROOF_CLAIM3.md` — stale measurement target (ε_leak insufficient as sole gate)
+- `KILL_PLAN.md`, `KILL_PLAN_SECURITY.md` — pre-d2-ASM-selector planning
+- `PHASE0_LITREVIEW.md` — novelty survey OK as background, but security framing stale
+
+**After Level 4 you understand**: (1) why the original `μ(π,k)+ε` target was abandoned at the implementation level, (2) what the new oracle-conditioned target looks like, and (3) which pieces of the old proof stack survived the rewrite.
 
 ---
 
@@ -201,11 +221,11 @@ Now read **our F2 claims** with full context.
 | 5 | Lin §6.2 Table 5 + Veyrat-Charvillon §1 | 30 min |
 | 6 | Azouaoui §2.1-2.2 (Eq. 4!) | 30 min |
 | 7 | Pessl §1, §3, §5.4-5.5 | 45 min |
-| 8 | F2 REVIEW_PACKAGE.md + run bayes_bound.py | 30 min |
-| 9 | PHASE1_PROOF_CLAIM1.md §1-5 | 45 min |
-| 10 | PHASE1_PROOF_CLAIM1.md §10 + PROOF_CLAIM2.md §1-4 | 45 min |
+| 8 | easycrypt_f2/README.md + STALE_AUDIT.md | 20 min |
+| 9 | CURRENT_PROOF_ROADMAP.md (Claims A-E) | 30 min |
+| 10 | PHASE1_PROOF_CLAIM1.md §1-5 (multiset only) + run bayes_bound.py | 35 min |
 
-By day 10 you can evaluate every F2 claim with the proper context.
+By day 10 you can evaluate the current F2 proof direction (oracle-conditioned bound + d2 ASM selector security) and distinguish it from the archival `μ(π,k)+ε` framing.
 
 ---
 
@@ -215,13 +235,14 @@ After Level 1, you should recognize these terms:
 
 | Term | Means | Where it appears in F2 |
 |---|---|---|
-| Trace τ | The power waveform from one cryptographic operation | F2 Theorem C1: `Pr[A(τ) = z₀]` |
+| Trace τ | The power waveform from one cryptographic operation | F2 measurement target (ELMO/Chipwhisperer) |
 | Template | Mean signal + noise covariance per operation | Phase 3 protocol |
-| MAP estimator | argmax_v of the posterior | F2 `bayes_optimal_guess` |
-| Posterior P(secret \| obs) | Bayes-derived belief about secret given observation | Lemma 5.2: P(z₀=v \| M) = c_v(M)/k |
-| Mutual information MI(Y; L) | Information about secret in leakage | Implicit in our ε_leak bound |
-| Success rate (SR) | Probability attacker wins | Our μ(π, k) is the optimal-attacker SR |
-| Guessing entropy (GE) | Expected guesses to find secret | Different from our per-trace bound, but related |
+| MAP estimator | argmax_v of the posterior | `bayes_optimal_guess` in `bayes_bound.py` |
+| Posterior P(secret \| obs) | Bayes-derived belief about secret given observation | Multiset oracle: P(z₀=v \| M) = c_v(M)/k (Claim A) |
+| Mutual information MI(Y; L) | Information about secret in leakage | Used in Selector Security claim (Claim B) |
+| Success rate (SR) | Probability attacker wins | μ(π, k) is the optimal-attacker SR **for the multiset oracle** |
+| Observation model O | Explicit list of what the adversary sees in the trace | `CURRENT_PROOF_ROADMAP.md` Claim C |
+| Excess leakage | measured_accuracy − BayesOracle(π,k,O) | Empirical target of Phase 3 (Claim D) |
 
 ---
 
@@ -235,5 +256,5 @@ After Level 1, you should recognize these terms:
 
 ---
 
-*Author: F2 project, 4-level study plan. Last updated: 2026-05-26.*
+*Author: F2 project, 4-level study plan. Last updated: 2026-06-04 (Level 4 rewritten for oracle-conditioned direction).*
 *Level 1 PDFs in this kit; Levels 2-4 reference external materials.*
